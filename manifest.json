@@ -1,0 +1,9 @@
+{
+  "name": "POG_Timer",
+  "version_number": "1.1.0",
+  "website_url": "https://github.com/largoz/POGTimer",
+  "description": "Round countdown (MM:SS) in the top-right corner. In co-op the host sends it to everyone with the mod. Settings in POG Config (optional).",
+  "dependencies": [
+    "LavaGang-MelonLoader-0.7.2"
+  ]
+}

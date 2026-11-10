@@ -3,3 +3,6 @@ obj/
 *.user
 *.suo
 .vs/
+
+# Thunderstore packaging output (tools/ThunderStoreCLI.py folder mode)
+build/

@@ -1,72 +1,40 @@
-# POGTimer
+# POG Timer
 
-Оверлей раунд-таймера для **Pit of Goblin** (MelonLoader, IL2CPP + Unity Netcode).
+A round countdown for Pit of Goblin in the top-right corner of the screen: `MM:SS` (or seconds), with HURRY!, WARNING and TIME'S UP under it. In co-op the host sends the countdown to the other players, so everyone with the mod sees the same time.
 
-Публікується на Thunderstore як **POG Timer**. Player-facing опис і changelog —
-у [`../../ThunderstorePackages/POGTimer/`](../../ThunderstorePackages/POGTimer/).
+## Multiplayer
 
-**Версія:** 1.0.3
-**Namespace:** `POGMods.Timer`
-**Збірка:** `POGTimer.dll`
-**Залежності:** MelonLoader, Unity Netcode Runtime; опційно [POGConfig](../POGConfig/) (soft dependency)
+- The host's game knows the round time. While a round runs it sends the time to the other players once a second, and once more when the round ends. The players count down on their own between updates.
+- Every player who wants to see the timer needs POG Timer. Players without it are not affected.
+- POG Timer 1.0.x and 1.1.x understand each other in one game.
+- The host can stop sending: "Send the timer to other players".
+- In the main menu the mod does no network work and writes nothing to the log.
 
----
+## Settings
 
-## Що робить
+With [POG Config](https://thunderstore.io/c/pit-of-goblin/p/Largo/POG_Config/) installed: MODS, then POG Timer.
 
-Завжди показує залишок часу раунду в правому верхньому куті (`MM:SS` або
-`127s`, конфігурується), з фазовими підписами **HURRY!** (нижче порогу,
-типово 60с) і **WARNING** (після `m_playedWarning` гри).
+| Setting | Default | |
+|---|---|---|
+| Show phase text (HURRY! / WARNING) | on | the line under the timer |
+| Seconds format | off | `127s` instead of `02:07` |
+| HURRY! threshold | 60 s | 10 to 120 seconds left |
+| Send the timer to other players (host only) | on | |
 
-У ко-опі **хост тримає таймер синхронним для всіх**: клієнти не читають
-`GameMode_Round` самі, а отримують значення від хоста мережею.
+POG Config is optional. Without it, edit `UserData/MelonPreferences.cfg`, section `[POG_Timer]`: `ShowPhaseText`, `SecondsFormat`, `HurryThreshold`, `SendToClients`.
 
-## Як це влаштовано
+## Install
 
-### Джерело правди про час
+With a Thunderstore mod manager (Gale, r2modman), or put `POGTimer.dll` into the game's `Mods` folder. Needs MelonLoader.
 
-`GameMode_Round.Instance` (`Assembly-CSharp`, `NetworkBehaviour`-синглтон):
-- `m_gameStarted` — чи йде раунд.
-- `ElapsedGameTime` / `RoundTime` → `remaining = RoundTime - ElapsedGameTime`.
-- `m_playedWarning` — чи вже програна репліка "король/королева втрачає терпіння".
+## For mod developers
 
-### Три режими роботи (`TickAuthority` / `TickRemoteClient` / `TickOfflineOrNoNetwork`)
+The host sends a Netcode unnamed message, little-endian: `[u32 magic "POGT"][f32 seconds left][u8 flags]`, flags bit 0 = round running, bit 1 = the game's warning has played. The layout has not changed since 1.0.1 and will not; anything new would get a new magic.
 
-`Update()` кожні 0.25с (`PollInterval`) визначає роль через `NetworkManager.Singleton`:
+Build against the game, or a mod manager profile, that holds `MelonLoader/` and `Mods/`:
 
-- **`IsServer`** (хост, або single-player — теж хост локально) — читає
-  `GameMode_Round` напряму й **розсилає** стан клієнтам.
-- **`IsClient && !IsServer`** (звичайний клієнт) — **не** чіпає
-  `GameMode_Round`, лише показує останній отриманий мережевий знімок.
-- **офлайн / нема `NetworkManager`** — читає `GameMode_Round` локально, без
-  розсилки (той самий шлях, що й на хості, без мережевої частини).
-
-### Кастомний мережевий канал
-
-Розсилка йде через **unnamed messages** `CustomMessagingManager`
-(`SendUnnamedMessageToAll` / `OnUnnamedMessage`) — спільний "безіменний"
-канал Netcode, тому мод сам фільтрує свої пакети 4-байтовим magic-префіксом
-`"POGT"` (`PayloadMagic = 0x54474F50`). Формат payload: `[magic:4][floatBits:4][flags:1]`
-(`flags` біт 0 = round active, біт 1 = played warning). Ручна little-endian
-серіалізація (`ReadUInt32LE`/`WriteHeader`) — без готового `BitConverter`
-для порядку байтів, бо `FastBufferReader/Writer` працює побайтово.
-
-`EnsureUnnamedHook()` перепідписується, якщо `CustomMessagingManager`
-змінився (вихід у лобі / реконект) — інакше підписка лишилась би на
-знищений інстанс.
-
-### Broadcast toggle
-
-`BroadcastEnabled` (тоггл у POGConfig, host-only) — при вимкненні хост
-одноразово шле "неактивний" пакет (`TryBroadcastUnnamed`), щоб клієнти
-одразу очистили дисплей, а не чекали timeout.
-
-## Збірка
-
-```powershell
-dotnet build ModSource/POGTimer/POGTimer.csproj -c Release
+```
+dotnet build POGTimer.csproj -c Release -p:GameDir=<that folder>
 ```
 
-## Roadmap
-
-Див. [ROADMAP.md](ROADMAP.md).
+Source: [github.com/largoz/POGTimer](https://github.com/largoz/POGTimer)
