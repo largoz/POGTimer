@@ -7,6 +7,7 @@ A round countdown for Pit of Goblin in the top-right corner of the screen: `MM:S
 - The host's game knows the round time. While a round runs it sends the time to the other players once a second, and once more when the round ends. The players count down on their own between updates.
 - Every player who wants to see the timer needs POG Timer. Players without it are not affected.
 - POG Timer 1.0.x and 1.1.x understand each other in one game.
+- With [POG Mod Check](https://github.com/largoz/POGModCheck), a player whose POG Timer version differs from the host's is asked before joining (Join or Cancel). A player without POG Timer is not asked.
 - The host can stop sending: "Send the timer to other players".
 - In the main menu the mod does no network work and writes nothing to the log.
 

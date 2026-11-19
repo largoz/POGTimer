@@ -6,6 +6,9 @@ using UnityEngine;
 
 [assembly: MelonInfo(typeof(POGMods.Timer.TimerMod), "POG Timer", POGMods.Timer.TimerMod.VERSION, "largo", "https://github.com/largoz/POGTimer")]
 [assembly: MelonOptionalDependencies("POGConfig")]
+// For POG Mod Check: nobody has to run POG Timer, but two players who both do should run the same version.
+// A standard .NET attribute: no reference to POG Mod Check, nothing changes without it.
+[assembly: System.Reflection.AssemblyMetadata("POGModCheck", "same-version")]
 
 namespace POGMods.Timer
 {
@@ -15,7 +18,7 @@ namespace POGMods.Timer
     /// </summary>
     public class TimerMod : MelonMod
     {
-        public const string VERSION = "1.1.0";
+        public const string VERSION = "1.1.1";
 
         internal static MelonLogger.Instance Log { get; private set; }
         internal static TimerSettings Settings { get; private set; }

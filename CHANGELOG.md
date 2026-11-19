@@ -1,3 +1,7 @@
+## 1.1.1
+
+- Tells [POG Mod Check](https://github.com/largoz/POGModCheck) that players who both run POG Timer should run the same version: a player whose POG Timer differs from the host's is asked before joining. Nobody has to have POG Timer, and without POG Mod Check nothing changes.
+
 ## 1.1.0
 
 - No more log spam. 1.0.x wrote "Hook failed" four times a second from the main menu on: it tried to listen for the host before any game existed to listen to. Now nothing happens in the menu, and a failure is written once.
